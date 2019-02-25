@@ -8,6 +8,8 @@ type segmentTree struct {
     tree []int
 }
 
+const INFINITY = 4294967295
+
 func NewSegmentTree(inp []int) segmentTree {
     st := segmentTree{}
     st.createTree(inp)
@@ -20,26 +22,44 @@ func (st *segmentTree) createTree (inp []int) {
     for i:=0;i<n;i++ {
         st.tree[n+i]=inp[i]
     }
-    for i:=n-1;i>=0;i--{
-        lc := 2*i+1
-        rc := 2*i+2
-        fmt.Println("Idx: Parent:", i, " LC:", lc, " RC:", rc)
-        if rc > len(st.tree)-1 {
-            fmt.Println("No rc")
-            st.tree[i] = st.tree[lc]
-            continue
-        }
+    for i:=n-1;i>=1;i--{
+        lc := 2*i
+        rc := 2*i+1
         if st.tree[lc] > st.tree[rc] {
             st.tree[i] = st.tree[rc]
         } else {
             st.tree[i] = st.tree[lc]
         }
-        fmt.Println("Parent:", st.tree[i], " LC:", st.tree[lc], " RC:", st.tree[rc])
     }
+}
+
+func (st *segmentTree) rangeMin (start, end int) int {
+    n := len(st.tree)/2
+    start += n
+    end += n
+
+    min := INFINITY
+    for ; start < end ; start, end = start/2, end/2 {
+        if start % 2 == 1 {
+            if min > st.tree[start] {
+                min = st.tree[start]
+            }
+            start++
+        }
+        if end % 2 == 1 {
+            end --
+            if min > st.tree[end] {
+                min = st.tree[end]
+            }
+        }
+    }
+    return min
 }
 
 func main () {
     fmt.Println("In Segment Tree")
-    st := NewSegmentTree([]int{2, 6, 10, 1, 2})
+    st := NewSegmentTree([]int{2, 6, 10, 4, 7, 28, 9, 11, 6, 33})
     fmt.Println("St:", st)
+    fmt.Println(st.rangeMin(0,5))
+    fmt.Println(st.rangeMin(2,6))
 }
